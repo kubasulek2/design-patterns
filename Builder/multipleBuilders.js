@@ -60,7 +60,7 @@ class PersonJobBuilder extends PersonBuilder {
 		this.person.annualIncome = annualIncome;
 		return this;
 	}
-	
+
 }
 
 
