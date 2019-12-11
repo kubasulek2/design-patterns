@@ -1,3 +1,7 @@
+// BUILDER ARE USED FOR HANDLING COMPLEX OBJECT CONSTRUCTION STEP BY STEP.
+
+// CREATE COMPLEX HTML ELEMENT BELOW:
+
 /* tag class */
 class Tag {
 	constructor (name = '', text = '') {
@@ -28,7 +32,7 @@ class Tag {
 		html.push(`${ i }</${ this.name }>\n`);
 		return html.join('');
 	}
-	/* to string call own implementation of toString */
+	/* toString calls own implementation of toString */
 	toString () {
 		return this.toStringImpl(0);
 	}
