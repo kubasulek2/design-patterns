@@ -1,1 +1,0 @@
-/* Prototype - a partially or  fully initialized object that you copy(clone)  and make use of it*/
