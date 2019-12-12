@@ -4,7 +4,7 @@
   "description": "",
   "main": "scrapBook.js",
   "scripts": {
-    "start": "nodemon scrapBook.js",
+    "start": "nodemon draftBook.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "kubasulek2 <kubasulek2@gmail.com>",
