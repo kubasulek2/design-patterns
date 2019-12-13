@@ -2,10 +2,9 @@
   "name": "design-patterns",
   "version": "1.0.0",
   "description": "",
-  "main": "scrapBook.js",
+  "main": "draftBook.js",
   "scripts": {
-    "start": "nodemon draftBook.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon draftBook.js"
   },
   "author": "kubasulek2 <kubasulek2@gmail.com>",
   "license": "MIT",

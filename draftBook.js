@@ -1,43 +1,88 @@
-class Bird {
-	constructor (age = 0) {
-		this.age = age;
-	}
-
-	fly () {
-		return this.age < 10 ? 'flying' : 'too old';
-	}
-}
-
-class Lizard {
-	constructor (age = 0) {
-		this.age = age;
-	}
-
-	crawl () {
-		return this.age > 1 ? 'crawling' : 'too young';
+class Generator {
+	generate (count) {
+		let result = [];
+		for (let i = 0; i < count; ++i)
+			result.push(Math.floor((Math.random() * 6) + 1));
+		return result;
 	}
 }
 
-class Dragon {
-	constructor (age = 0) {
-		this._bird = new Bird(age);
-		this._lizard = new Lizard(age);
-		this._age = age;
+class Splitter {
+	split (array) {
+		let result = [];
+
+		let rowCount = array.length;
+		let colCount = array[0].length;
+
+		// get the rows
+		for (let r = 0; r < rowCount; ++r) {
+			let theRow = [];
+			for (let c = 0; c < colCount; ++c)
+				theRow.push(array[r][c]);
+			result.push(theRow);
+		}
+
+		// get the columns
+		for (let c = 0; c < colCount; ++c) {
+			let theCol = [];
+			for (let r = 0; r < rowCount; ++r)
+				theCol.push(array[r][c]);
+			result.push(theCol);
+		}
+
+		// now the diagonals
+		let diag1 = [];
+		let diag2 = [];
+		for (let c = 0; c < colCount; ++c) {
+			for (let r = 0; r < rowCount; ++r) {
+				if (c === r)
+					diag1.push(array[r][c]);
+				let r2 = rowCount - r - 1;
+				if (c === r2)
+					diag2.push(array[r][c]);
+			}
+		}
+
+		result.push(diag1);
+		result.push(diag2);
+
+		return result;
 	}
-
-	set age (value) {
-		this._age = this._bird.age
-			= this._lizard.age = value;
-	}
-
-	get age () { return this._age; }
-
-	fly () { return this._bird.fly(); }
-	crawl () { return this._lizard.crawl(); }
 }
 
+class Verifier {
+	verify (array) {
+		if (array.length < 1) return false;
+		let adder = function (p, c) {
+			return p + c;
+		};
+		let expected = array[0].reduce(adder);
+		let ok = true;
+		array.forEach(function (subarray) {
+			if (subarray.reduce(adder) !== expected) {
+				ok = false;
+			}
+		});
+		return ok;
+	}
+}
 
-let d = new Dragon(5);
-console.log(d.age = 11);
-console.log(d.fly());
-console.log(d.crawl());
+class MagicSquareGenerator {
+	static generate (size) {
+		let g = new Generator();
+		let s = new Splitter();
+		let v = new Verifier();
+		let counter = 0;
+		let square;
+
+		do {
+			square = [];
+			for (let i = 0; i < size; ++i){
+				++counter;
+				console.log(counter);
+				square.push(g.generate(size));
+			}
+		} while (!v.verify(s.split(square)));
+		return square;
+	}
+}
