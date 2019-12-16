@@ -10,28 +10,35 @@ class Creature {
 	}
 }
 
+/* Base class */
 class CreatureModifier {
 	constructor (creature) {
+		/* Reference to object */
 		this.creature = creature;
+		/* Link list here */
 		this.next = null;
 	}
 
 	add (modifier) {
+		/* adding item to list */
 		if (this.next) this.next.add(modifier);
 		else this.next = modifier;
 	}
 
 	handle () {
+		/* Here is the magic: call same method on next item. */
 		if (this.next) this.next.handle();
 	}
 }
 
+/* This will stop whole operation */
 class NoBonusesModifier extends CreatureModifier {
 	constructor (creature) {
 		super(creature);
 	}
 
 	handle () {
+		// no super.handle() - stops whole chain.
 		console.log('No bonuses for you!');
 	}
 }
@@ -44,6 +51,7 @@ class DoubleAttackModifier extends CreatureModifier {
 	handle () {
 		console.log(`Doubling ${ this.creature.name }'s attack`);
 		this.creature.attack *= 2;
+		/* super.handle() do the chain effect. */
 		super.handle();
 	}
 }
@@ -70,7 +78,6 @@ let root = new CreatureModifier(goblin);
 //root.add(new NoBonusesModifier(goblin));
 
 root.add(new DoubleAttackModifier(goblin));
-//root.add(new DoubleAttackModifier(goblin));
 
 root.add(new IncreaseDefenseModifier(goblin));
 
