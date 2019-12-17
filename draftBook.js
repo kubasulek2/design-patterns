@@ -1,34 +1,55 @@
-let Action = Object.freeze({
-	deposit: 0,
-	withdraw: 1
-});
-
-class Command {
-	constructor (action, amount) {
-		this.action = action;
-		this.amount = amount;
-		this.success = false;
-	}
-}
-
-class Account {
+class ExpressionProcessor {
 	constructor () {
-		this.balance = 0;
+		this.variables = {};
+		this.nextOp = Object.freeze({
+			nothing: 0,
+			plus: 1,
+			minus: 2
+		});
 	}
 
-	process(cmd) {
-		switch (cmd.action) {
-			case Action.deposit:
-				this.balance += cmd.amount;
-				cmd.success = true;
-				break;
-			case Action.withdraw:
-				if (this.balance - cmd.amount < 0) return cmd.success = false;
-				this.balance = this.balance -= cmd.amount;
-				cmd.success = true;
-				break;
-			default:
-				break;
+	calculate(expression) {
+		debugger;
+		let current = 0;
+		let nextOp = this.nextOp.nothing;
+
+		let parts = expression.split(/(?<=[+-])/);
+		console.log(parts);
+
+		for (let part of parts) {
+			let noop = part.split("+-");
+			let first = noop[0];
+			let value = 0, z = 0;
+
+			z = parseInt(first);
+			if (!isNaN(z))
+				value = z;
+			else if (first.length === 1
+				&& this.variables[first[0]] !== undefined) {
+				value = this.variables[first[0]];
+			}
+			else return 0;
+
+			switch (nextOp) {
+				case this.nextOp.nothing:
+					current = value;
+					break;
+				case this.nextOp.plus:
+					current += value;
+					break;
+				case this.nextOp.minus:
+					current -= value;
+					break;
+			}
+
+			if (part.endsWith('+')) nextOp = this.nextOp.plus;
+			else if (part.endsWith('-')) nextOp = this.nextOp.minus;
 		}
+		return current;
 	}
 }
+
+
+let c = new ExpressionProcessor();
+
+console.log(c.calculate('1+2+30'));
