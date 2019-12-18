@@ -1,55 +1,46 @@
-class ExpressionProcessor {
-	constructor () {
-		this.variables = {};
-		this.nextOp = Object.freeze({
-			nothing: 0,
-			plus: 1,
-			minus: 2
-		});
+class Node {
+	constructor (value, left = null, right = null) {
+		this.value = value;
+		this.left = left;
+		this.right = right;
+
+		this.parent = null;
+
+		if (left)
+			left.parent = this;
+		if (right)
+			right.parent = this;
 	}
 
-	calculate(expression) {
-		debugger;
-		let current = 0;
-		let nextOp = this.nextOp.nothing;
-
-		let parts = expression.split(/(?<=[+-])/);
-		console.log(parts);
-
-		for (let part of parts) {
-			let noop = part.split("+-");
-			let first = noop[0];
-			let value = 0, z = 0;
-
-			z = parseInt(first);
-			if (!isNaN(z))
-				value = z;
-			else if (first.length === 1
-				&& this.variables[first[0]] !== undefined) {
-				value = this.variables[first[0]];
-			}
-			else return 0;
-
-			switch (nextOp) {
-				case this.nextOp.nothing:
-					current = value;
-					break;
-				case this.nextOp.plus:
-					current += value;
-					break;
-				case this.nextOp.minus:
-					current -= value;
-					break;
-			}
-
-			if (part.endsWith('+')) nextOp = this.nextOp.plus;
-			else if (part.endsWith('-')) nextOp = this.nextOp.minus;
+	* _traverse(current) {
+		yield current;
+		if (current.left) {
+			for (let left of this._traverse(current.left))
+				yield left;
 		}
-		return current;
+		if (current.right) {
+			for (let right of this._traverse(current.right))
+				yield right;
+		}
+	}
+
+	* preorder() {
+		// return all the node *values* (not the nodes)
+		for (let node of this._traverse(this))
+			yield node.value;
 	}
 }
 
+let root = new Node(1, new Node(2), new Node(3));
+//    1
+//   / \
+//  2   5
+// /\   /\
+//3  4 6  7
+// in-order:  213
+// preorder:  123
+// postorder: 231
 
-let c = new ExpressionProcessor();
-
-console.log(c.calculate('1+2+30'));
+// a generator is both an iterator and iterable
+for (let x of root.preorder())
+	console.log(x);
