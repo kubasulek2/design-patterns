@@ -1,64 +1,85 @@
 class Event {
 	constructor () {
-		// handlers is a map of functions that will be called when event fires.
 		this.handlers = new Map();
-		// count generates map keys and will be token for unsubscribing
 		this.count = 0;
 	}
 
-	// add a object to handlers: {key: count, value: function}
 	subscribe(handler) {
 		this.handlers.set(++this.count, handler);
-		// return count as token/index
 		return this.count;
 	}
 
-	// use token/index for deleting handler from map.
 	unsubscribe(idx) {
 		this.handlers.delete(idx);
 	}
 
-	// 1) who fired the event?
-	// 2) additional data (event args)
-	// all handlers passed must be build like that
 	fire(sender, args) {
-		this.handlers.forEach(
-			// for each value(handler) call handler with those params
-			(v, k) => v(sender, args)
+		this.handlers.forEach(function (v, k) {
+			v(sender, args);
+		});
+	}
+}
+
+class Game {
+	constructor () {
+		this.ratEnters = new Event();
+		this.ratDies = new Event();
+		this.notifyRat = new Event();
+	}
+
+	// the following is a set of utility methods
+	// they are not strictly necessary but some of them
+	// omit extra parameters that we do not need
+
+	// the sender is the rat that enters
+	fireRatEnters(sender) {
+		this.ratEnters.fire(sender, null);
+	}
+
+	// the sender is the rat that died
+	fireRatDies(sender) {
+		this.ratDies.fire(sender, null);
+	}
+
+	fireNotifyRat(sender, whichRat) {
+		this.notifyRat.fire(sender, whichRat)
+	}
+}
+
+class Rat {
+	constructor (game) {
+		this.game = game;
+		this.attack = 1;
+		game.ratEnters.subscribe(
+			this.handleRatEnters.bind(this)
 		);
-	}
-}
-
-// special class for handling argument (makes sure they are uniformed)
-class FallsIllArgs {
-	constructor (address) {
-		this.address = address;
-	}
-}
-class Person {
-	constructor (address) {
-		this.address = address;
-		// here we store the event object 
-		this.fallsIll = new Event();
-	}
-	catchCold() {
-		// fire event for all handlers stored
-		this.fallsIll.fire(
-			this,
-			new FallsIllArgs(this.address)
+		game.ratDies.subscribe(
+			this.handleRatDies.bind(this)
 		);
+		game.notifyRat.subscribe(
+			this.handleNotifyRat.bind(this)
+		);
+		game.fireRatEnters(this);
+	}
+
+	handleRatEnters(sender, args) {
+		if (sender !== this) {
+			this.attack++;
+			this.game.fireNotifyRat(this, sender);
+		}
+	}
+
+	handleRatDies(sender, args) {
+		this.attack--;
+	}
+
+	handleNotifyRat(sender, whichRat) {
+		if (whichRat === this)
+			this.attack++;
+	}
+
+	die() {
+		this.game.fireRatDies(this);
 	}
 }
 
-let person = new Person('123 London');
-// sub is return token
-// subscribe a person, providing a handler
-let sub = person.fallsIll.subscribe((s, a) => {
-	// handler: change state of sender log; 
-	s.ill = true;  // change the sender
-	console.log(`A doctor has been called to ${a.address}`);
-});
-
-person.catchCold(); // state changed, get notification;
-person.fallsIll.unsubscribe(sub); // unsubscribe with sub token
-person.catchCold(); // nothing happens
