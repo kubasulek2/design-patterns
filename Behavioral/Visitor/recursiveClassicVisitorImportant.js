@@ -43,7 +43,7 @@ class ExpressionPrinter {
 	visitValue(value) {
 		this._buffer.push(value.value);
 	}
-
+	// recursion for complex expressions
 	visitAddition(ae) {
 		this._buffer.push('(');
 		ae.lhs.accept(this);
@@ -52,6 +52,7 @@ class ExpressionPrinter {
 		this._buffer.push(')');
 	}
 
+	// recursion for complex expressions
 	visitMultiplication(me) {
 		me.lhs.accept(this);
 		this._buffer.push('*');
