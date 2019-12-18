@@ -1,74 +1,44 @@
-class Event {
+class Token {
+	constructor (value = 0) {
+		this.value = value;
+	}
+}
+
+class Memento {
 	constructor () {
-		this.handlers = new Map();
-		this.count = 0;
-	}
-
-	subscribe(handler) {
-		this.handlers.set(++this.count, handler);
-		return this.count;
-	}
-
-	unsubscribe(idx) {
-		this.handlers.delete(idx);
-	}
-
-	fire(sender, args) {
-		this.handlers.forEach(function (v, k) {
-			v(sender, args);
-		});
+		this.tokens = [];
 	}
 }
 
-class PlayerScoredEventArgs {
-	constructor (playerName, goalsScoredSoFar) {
-		this.playerName = playerName;
-		this.goalsScoredSoFar = goalsScoredSoFar;
-	}
-
-	print() {
-		console.log(`${ this.playerName } has scored `
-			+ `their ${ this.goalsScoredSoFar } goal`);
-	}
-}
-
-class Game {
+class TokenMachine {
 	constructor () {
-		this.events = new Event();
+		this.tokens = [];
+	}
+
+	addTokenValue(value) {
+		return this.addToken(new Token(value));
+	}
+
+	addToken(token) {
+		this.tokens.push(token);
+		let m = new Memento();
+		let copiedTokens = this.tokens.map(t => new Token(t.value));
+		m.tokens = copiedTokens;
+		return m;
+	}
+
+	revert(m) {
+		this.tokens = m.tokens;
 	}
 }
 
-class Player {
-	constructor (name, game) {
-		this.name = name;
-		this.game = game;
-		this.goalsScored = 0;
-	}
+let tm = new TokenMachine();
 
-	score() {
-		this.goalsScored++;
-		let args = new PlayerScoredEventArgs(this.name, this.goalsScored);
-		this.game.events.fire(this, args);
-	}
-}
+let token = new Token(111);
+tm.addToken(token);
+let m = tm.addTokenValue(222);
 
-class Coach {
-	constructor (game) {
-		this.game = game;
-
-		game.events.subscribe(function (sender, args) {
-			if (args instanceof PlayerScoredEventArgs
-				&& args.goalsScoredSoFar < 3) {
-				console.log(`coach says: well done, ${ sender.name }`);
-			}
-		});
-	}
-}
-
-let game = new Game();
-let player = new Player('Sam', game);
-let coach = new Coach(game);
-
-player.score();
-player.score();
-player.score(); 
+token.value = 333;
+console.log(m.tokens);
+console.log();
+tm.revert(m);
