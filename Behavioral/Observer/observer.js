@@ -56,7 +56,7 @@ let person = new Person('123 London');
 let sub = person.fallsIll.subscribe((s, a) => {
 	// handler: change state of sender log; 
 	s.ill = true;  // change the sender
-	console.log(`A doctor has been called to ${a.address}`);
+	console.log(`A doctor has been called to ${ a.address }`);
 });
 
 person.catchCold(); // state changed, get notification;
